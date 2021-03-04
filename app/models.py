@@ -32,3 +32,21 @@ class User(UserMixin,db.Model): #db.Model helps connect our class to our databas
     def __repr__(self): #defines how the user object will be constructed when the class is called
         return f'{self.username}'
 
+from app import db
+from datetime import datetime
+class Todos(db.Model):
+    id = db.Column(db.Integer(), primary_key = True)
+    category = db.Column(db.String(50), nullable = True)
+    description = db.Column(db.String(200), nullable=False)
+    completed = db.Column(db.Boolean(), default=False)
+    create_date = db.Column(db.DateTime(), default=datetime.now())
+
+class Timer(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    pomodoro_interval = db.Column(db.Integer())
+    break_interval = db.Column(db.Integer())
+
+class Feedbacks(db.Model):
+	id = db.Column(db.Integer(), primary_key=True)
+	username = db.Column(db.String(50))
+	feedback = db.Column(db.String(100))

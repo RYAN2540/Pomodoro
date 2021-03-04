@@ -8,6 +8,8 @@ class Config:
     MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
     UPLOADED_PHOTOS_DEST ='app/static/photos'
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///timer.db'
+    SECRET_KEY = 'gakuyajefferson'
     SQLALCHEMY_TRACK_MODIFICATIONS=False
 
 class ProdConfig(Config):
@@ -19,7 +21,15 @@ class DevConfig(Config):
     DEBUG = True
 
 class TestConfig(Config):
-    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URL_TEST")
+    '''
+    Testing Configuration child class
+
+    Args:
+        Config: The parent configuration class with General configuration settings
+    '''
+    pass
+
+    DEBUG = True
 
 config_options = {
 'development':DevConfig,

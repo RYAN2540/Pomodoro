@@ -14,6 +14,10 @@ login_manager.login_view = 'auth.login' #login endpoint
 mail = Mail()
 photos = UploadSet('photos',IMAGES)
 
+
+bootstrap = Bootstrap()
+db = SQLAlchemy()
+
 def create_app(config_name):
 
     app = Flask(__name__)
@@ -30,6 +34,7 @@ def create_app(config_name):
     # configure UploadSet
     configure_uploads(app,photos)
     
+
     # Registering the blueprint
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
