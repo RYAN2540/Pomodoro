@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+<!-- Styles block -->
+{% block styles%}
+    {{ super() }}
+    <link rel="stylesheet" href="{{url_for('static',filename='css/todos.css')}}">
+{% endblock %}
+
+
+{% block body %}
+	<br><br><br><br>
+	<div class="alert alert-dark" role="alert">
+		<h3><b>To-Do List</b></h3>
+		<a href="/add_todo" class="button"> 
+		<button id="return-button" type="submit" class="btn btn-dark btn-lg">
+			Add New Task 
+		</button>
+		</a>
+	</div>
+
+	<table class="table table-striped todoTable">
+		<tr>
+			<th>Category</th>
+			<th>Description</th>
+			<th>Status</th>
+			<th>Date Created</th>
+			<th></th>
+			<th></th>
+			<th></th>
+		</tr>
+
+		{% for todo in todos %}
+			<tr>
+				<td>{{todo.category}}</td>
+				<td>{{todo.description}}</td>
+				<td>{{todo.completed}}</td>
+				<td>{{todo.create_date}}</td>
+				<td><a href="edit_todo/{{todo.id}}" class="btn btn-success pull-right">Edit</a></td>
+				<td>
+					<form action="{{url_for('main.delete_todo', id=todo.id)}}" method="POST">
+						<input type="hidden" name="method" value="DELETE">
+						<input type="submit" value="Delete" class="btn btn-danger">  
+					</form>
+				</td> 
+				<td></td>
+			</tr>
+		{% endfor %}
+	</table>
+
+	<br>
+	<hr>
+	<a href="/pomodoro" class="btn btn-primary btn-lg" style="margin-left: 42%">Return to App</a>
+
+{% endblock %}
