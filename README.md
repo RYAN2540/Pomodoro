@@ -59,7 +59,7 @@ break until finishing the task or todo.
 
 ## Support and contact details
 
-David GitHub Acc: (`https://github.com/RYAN2540/Pomodoro`)
+Ryan GitHub Acc: (`https://github.com/RYAN2540/Pomodoro`)
 
 JeffDev GitHub Acc: (`https://github.com/NgatiaJeffers`)
 
