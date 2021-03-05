@@ -1,7 +1,89 @@
 from . import main
-from ..models import Todos, Timer, Feedbacks
-from flask import render_template, flash, redirect, url_for, request
-from .. import db
+from .. import db, photos
+from ..email import mail_message
+from ..models import User, Todos, Timer, Feedbacks
+from .forms import LoginForm, SignUpForm, UpdateProfile
+from flask_login import login_required, current_user, login_user, logout_user
+from flask import render_template, flash, redirect, url_for, request, abort
+import logging
+
+@main.route('/', methods = ["GET", "POST"])
+def index():	
+	return render_template('home.html')
+
+
+@main.route('/login', methods = ["GET", "POST"])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email = form.email.data).first()
+        if user is not None and user.verify_password(form.password.data):
+            login_user(user,form.remember.data)
+            return redirect(url_for('main.pomodoro', user_id=user.id))
+        flash('Invalid username or password', 'danger')
+    
+    title = "Login | Pomodoro"
+    return render_template('login.html', login_form = form, title=title)
+
+
+@main.route('/signup', methods = ["GET", "POST"])
+def signup():
+    form = SignUpForm()
+    if form.validate_on_submit():
+        user = User(email = form.email.data, username = form.username.data, password = form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        mail_message("Welcome to Pomodoro", "email/welcome_user", user.email, user=user)
+        return redirect(url_for('main.login'))
+    title = "New Account | Pomodoro"
+    return render_template('signup.html', signup_form = form, title=title)
+
+
+@main.route('/logout')
+@login_required
+def logout():
+	logout_user()
+	return redirect(url_for("main.index"))
+
+@main.route('/user/<uname>')
+@login_required
+def profile(uname):
+    user = User.query.filter_by(username = uname).first()
+
+    if user is None:
+        abort(404)
+
+    return render_template("profile.html", user = user)
+
+@main.route('/user/<uname>/update',methods = ['GET','POST'])
+@login_required
+def update_profile(uname):
+    user = User.query.filter_by(username = uname).first()
+    if user is None:
+        abort(404)
+    
+    form = UpdateProfile()
+
+    if form.validate_on_submit():
+        user.bio = form.bio.data
+
+        db.session.add(user)
+        db.session.commit()
+
+        return redirect(url_for('.profile',uname=user.username))
+
+    return render_template('update.html',form =form)
+
+@main.route('/user/<uname>/update/pic',methods= ['POST'])
+@login_required
+def update_pic(uname):
+    user = User.query.filter_by(username = uname).first()
+    if 'photo' in request.files:
+        filename = photos.save(request.files['photo'])
+        path = f'photos/{filename}'
+        user.profile_pic_path = path
+        db.session.commit()
+    return redirect(url_for('.profile',uname=uname))
 
 
 # Load todos from database
@@ -23,6 +105,7 @@ def getTodos():
 
 # pomodoro-tracker page
 @main.route('/pomodoro', methods=["GET", "POST"])
+@login_required
 def pomodoro():
 	if request.method == 'POST':
 		inputTimerTarget = request.form['pomodoroInterval']
@@ -33,7 +116,7 @@ def pomodoro():
 		breakTarget = inputBreakTarget[3:]
 
 		# save timer intervals for logged in user
-		newTimer = Timer(pomodoro_interval=timerTarget, break_interval=breakTarget)
+		newTimer = Timer(username = current_user, pomodoro_interval=timerTarget, break_interval=breakTarget)
 		db.session.add(newTimer)
 		db.session.commit()
 
@@ -57,6 +140,7 @@ def pomodoro():
 
 # todos manager
 @main.route('/todos', methods=["GET", "POST"])
+@login_required
 def todos():
 	todos = getTodos()	
 	return render_template('todos.html', todos = todos)
@@ -64,6 +148,7 @@ def todos():
 
 # add new todos
 @main.route('/add_todo', methods=["GET", "POST"])
+@login_required
 def add_todo():
 	if request.method == 'POST':
 		category = request.form['category']
@@ -73,9 +158,9 @@ def add_todo():
 			newTodo = Todos(category=category, 
 							description=description, completed=False)
 			db.session.add(newTodo)
-			db.session.commit()
+			db.session.commit()  #Prevents an error
 			todos = getTodos()
-			return redirect(url_for('main.todos', todos=todos))
+			return redirect(url_for('.todos', todos=todos))
 		else:
 			flash('Please enter complete details', 'danger')
 			return render_template('add_todo.html')
@@ -85,8 +170,9 @@ def add_todo():
 
 # edit todos
 @main.route('/edit_todo/<string:id>', methods=["GET", "POST"])
+@login_required
 def edit_todo(id):
-	editTodo = Todos.query.filter_by(id=id).first()
+	editTodo = Todos.query.filter_by(id = id).first()
 	if request.method == 'POST':
 		editTodo.category = request.form['category']
 		editTodo.description = request.form['description']
@@ -97,7 +183,7 @@ def edit_todo(id):
 		db.session.commit()
 
 		todos = getTodos()
-		return redirect(url_for('main.todos',todos=todos))
+		return redirect(url_for('.todos',todos=todos))
 	else:
 		if editTodo and editTodo:
 			return render_template('edit_todo.html',editTodo=editTodo)
@@ -109,15 +195,15 @@ def delete_todo(id):
 	db.session.delete(delTodo)
 	db.session.commit()
 	todos = getTodos()
-	return redirect(url_for('main.todos', todos=todos))
+	return redirect(url_for('.todos', todos=todos))
 
 
 # feedback page
 @main.route('/feedback', methods=["GET", "POST"])
 def feedback():	
 	if request.method == 'POST':
+		username = 'guest'
 		feedback = request.form['feedback']
-		username = request.form['username']
 
 		newFeedback = Feedbacks(username = username, feedback=feedback)
 		db.session.add(newFeedback)
@@ -127,3 +213,7 @@ def feedback():
 		return render_template('feedback.html')
 	else: 		
 		return render_template('feedback.html')
+
+
+
+

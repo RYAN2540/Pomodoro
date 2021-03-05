@@ -2,12 +2,18 @@ import os
 
 class Config:
     '''
-    General configuration
+    General configuration parent class
     '''
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///timer.db'
-    SECRET_KEY = 'gakuyajefferson'
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres:Access@localhost/pomodoro'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
+    MAIL_SERVER = 'smtp.googlemail.com'
+    MAIL_PORT = 587
+    MAIL_USE_TLS = True
+    MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
+    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
+    UPLOADED_PHOTOS_DEST ='app/static/photos'
+    
 class ProdConfig(Config):
     '''
     Production configuration child class
@@ -15,6 +21,7 @@ class ProdConfig(Config):
     Args:
         Config: The parent configuration class with general configuration settings
     '''
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
 
 class DevConfig(Config):
     '''
@@ -24,7 +31,7 @@ class DevConfig(Config):
         Config: The parent configuration class with General configuaration settings
     '''
 
-    pass
+    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres:Access@localhost/pomodoro'
 
 class TestConfig(Config):
     '''
@@ -35,7 +42,9 @@ class TestConfig(Config):
     '''
     pass
 
+
     DEBUG = True
+
 
 config_options = {
 'development':DevConfig,
