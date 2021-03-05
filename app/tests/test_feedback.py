@@ -1,5 +1,5 @@
 import unittest
-from app.models import Feedbacks
+from app.models import Feedbacks, User
 
 class TestFeedback(unittest.TestCase):
     '''
@@ -8,7 +8,7 @@ class TestFeedback(unittest.TestCase):
     def setUp(self):
         self.user_John_Doe = User(username = 'John Doe', password = 'Iamjohndoe', email = 'johndoe@gmail.com', bio = 'I love coding',
         profile_pi_path = 'https://image.tmdb.org/t/p/w500/jdjdjdjn', pitch = 'talk is cheap show me the codes')
-        self.new_feedback = Feedback(username = 'John Doe',feedback = 'I love Pomodoro Timer, helpful')
+        self.new_feedback = Feedbacks(username = 'John Doe',feedback = 'I love Pomodoro Timer, helpful')
 
     def tearDown(self):
         Feedbacks.Clear_feedbacks()
