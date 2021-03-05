@@ -40,7 +40,7 @@ class TestConfig(Config):
     Args:
         Config: The parent configuration class with General configuration settings
     '''
-    pass
+    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres:Access@localhost/pomodoro_test'
 
 
     DEBUG = True

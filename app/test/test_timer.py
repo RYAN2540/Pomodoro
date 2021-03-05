@@ -12,7 +12,7 @@ class TestTimer(unittest.TestCase):
         profile_pi_path = 'https://image.tmdb.org/t/p/w500/jdjdjdjn', pitch = 'talk is cheap show me the codes')
         self.new_timer = Timer(username = 'John Doe', pomodoro_interval = '1hr', break_interval = '5min')
 
-    def tearDown(self):
+    def tearDown():
         Timer.Clear_timer()
 
     def test_instance(self):

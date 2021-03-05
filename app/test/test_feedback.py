@@ -10,7 +10,7 @@ class TestFeedback(unittest.TestCase):
         profile_pi_path = 'https://image.tmdb.org/t/p/w500/jdjdjdjn', pitch = 'talk is cheap show me the codes')
         self.new_feedback = Feedbacks(username = 'John Doe',feedback = 'I love Pomodoro Timer, helpful')
 
-    def tearDown(self):
+    def tearDown():
         Feedbacks.Clear_feedbacks()
 
     def tes_instance(self):

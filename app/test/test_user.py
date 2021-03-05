@@ -10,7 +10,7 @@ class TestUser(unittest.TestCase):
         self.user_John_Doe = User(username = 'John Doe', password = 'Iamjohndoe', email = 'johndoe@gmail.com', bio = 'I love coding',
         profile_pi_path = 'https://image.tmdb.org/t/p/w500/jdjdjdjn', pitch = 'talk is cheap show me the codes')
 
-        def tearDown(self):
+        def tearDown():
             User.Clear_user()
 
         def test_check_instance_variables(self):
